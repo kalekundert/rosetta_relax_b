@@ -1,0 +1,13 @@
+name: relax_b
+dependencies:
+  - python=3.9  # pyrosetta requires python<3.10 (2022/01/20)
+  - pip
+  - pyrosetta
+  - numpy
+  - pandas
+  - matplotlib
+  - scikit-optimize
+  - more-itertools
+  - pip:
+    - autoprop
+    - byoc
