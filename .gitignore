@@ -1,4 +1,5 @@
 /work
 /sandbox
 .nextflow*
+__pycache__
 
