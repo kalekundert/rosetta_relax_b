@@ -190,13 +190,10 @@ Config File:
             return
 
         iteration = 0
-        trajectory = {
-                'cst_stdev': [],
-                'pdb_path': [],
-                'objective': [],
-                'score_reu': [],
-                'score_diff_reu': [],
-        }
+        record_optimization_results(self.json_output_path, {
+            'dry_run': self.dry_run,
+            'unrelaxed_pdb': str(self.unrelaxed_pdb_path),
+        })
 
         class ExpectedMinimumStopper:
 
@@ -268,11 +265,13 @@ Config File:
             relaxed_score = sfxn(relaxed_pose)
             score_diff = relaxed_score - initial_score
 
-            trajectory['cst_stdev'].append(cst_stdev)
-            trajectory['pdb_path'].append(str(pdb_path))
-            trajectory['objective'].append(objective)
-            trajectory['score_reu'].append(relaxed_score)
-            trajectory['score_diff_reu'].append(score_diff)
+            update_trajectory(self.json_output_path, {
+                    'cst_stdev': cst_stdev,
+                    'pdb_path': str(pdb_path),
+                    'objective': objective,
+                    'score_reu': relaxed_score,
+                    'score_diff_reu': score_diff,
+            })
 
             logger.info("end relax simulation:")
             logger.info(kv(f"mean distance (actual)", df.dist_actual.mean()))
@@ -319,7 +318,9 @@ Config File:
         logger.info(kv("best constraint stdev", x_best))
         logger.info(kv("function calls", iteration))
 
-        record_optimization_results(self, x_best, trajectory, self.json_output_path)
+        update_optimization_results(self.json_output_path, {
+            'cst_stdev': x_best,
+        })
         plot_optimization_results(result, self.svg_output_path)
 
     def get_unrelaxed_pose(self):
@@ -347,19 +348,28 @@ Config File:
     def get_svg_output_path(self):
         return self.output_dir / 'gaussian_process_model.svg'
 
+
 def load_optimization_results(path):
     with open(path) as f:
         return json.load(f)
 
-def record_optimization_results(app, cst_stdev, trajectory, path):
-    results = {
-            'cst_stdev': cst_stdev,
-            'unrelaxed_pdb': str(app.unrelaxed_pdb_path),
-            'dry_run': app.dry_run,
-            'trajectory': trajectory,
-    }
+def record_optimization_results(path, results):
+    path.parent.mkdir(exist_ok=True, parents=True)
     with open(path, 'w') as f:
         json.dump(results, f)
+
+def update_optimization_results(path, new_results):
+    old_results = load_optimization_results(path)
+    record_optimization_results(path, {**old_results, **new_results})
+
+def update_trajectory(path, frame):
+    results = load_optimization_results(path)
+    traj = results.setdefault('trajectory', {})
+
+    for k, v in frame.items():
+        traj.setdefault(k, []).append(v)
+
+    record_optimization_results(path, results)
 
 def plot_optimization_results(result, path=None):
     args = result.specs.get('args', {})
@@ -481,6 +491,7 @@ def plot_optimization_results(result, path=None):
     )
 
     if path:
+        path.parent.mkdir(exist_ok=True, parents=True)
         fig.savefig(path)
 
     return fig
