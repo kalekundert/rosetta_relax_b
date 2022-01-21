@@ -206,6 +206,9 @@ Config File:
                 self.expected_minima = []
 
             def __call__(self, result):
+                if not result.models:
+                    return None
+
                 n = self.n_iterations
                 (x,), y = expected_minimum(result)
                 self.expected_minima.append(x)
