@@ -1,5 +1,6 @@
 /work
 /sandbox
+/relax_b
 .nextflow*
 __pycache__
 
