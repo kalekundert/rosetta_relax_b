@@ -12,6 +12,7 @@ process optimize_cst {
     cpus 1
     memory '2GB'
     time '96h'
+    queue 'medium'
     publishDir params.out_dir, saveAs: {file(it).getName()}
 
     input:
@@ -35,6 +36,7 @@ process relax {
     cpus 1
     memory '2GB'
     time '24h'
+    queue 'medium'
 
     input:
         path 'unrelaxed.pdb'
@@ -53,6 +55,9 @@ process relax {
 
 process pick_best_model {
     cpus 1
+    memory '1GB'
+    time '1h'
+    queue 'short'
     publishDir params.out_dir, pattern: 'best_model.pdb'
 
     input:
