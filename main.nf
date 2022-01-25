@@ -1,7 +1,7 @@
 nextflow.enable.dsl = 2
 
 params.n = 50
-params.out_dir = 'relax_b'
+params.out_dir = 'results'
 params.dry_run = false
 
 params.opt = [:]
