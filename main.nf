@@ -12,7 +12,7 @@ process optimize_cst {
     cpus 1
     memory '2GB'
     time params.dry_run ? '30m' : '96h'
-    publishDir params.out_dir, saveAs: {file(it).getName()}
+    publishDir params.out_dir, saveAs: {file(it).getName()}, mode: 'link'
 
     input:
         path 'unrelaxed.pdb'
@@ -55,7 +55,7 @@ process pick_best_model {
     cpus 1
     memory '1GB'
     time '30m'
-    publishDir params.out_dir, pattern: 'best_model.pdb'
+    publishDir params.out_dir, pattern: 'best_model.pdb', mode: 'link'
 
     input:
         path 'models/*.pdb'
