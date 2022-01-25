@@ -12,7 +12,8 @@ process optimize_cst {
     cpus 1
     memory '2GB'
     time params.dry_run ? '30m' : '96h'
-    publishDir params.out_dir, saveAs: {file(it).getName()}, mode: 'link'
+    publishDir params.out_dir, saveAs: {file(it).getName()}, mode: 'rellink'
+    stageInMode 'rellink'
 
     input:
         path 'unrelaxed.pdb'
@@ -35,6 +36,7 @@ process relax {
     cpus 1
     memory '2GB'
     time params.dry_run ? '30m' : '24h'
+    stageInMode 'rellink'
 
     input:
         path 'unrelaxed.pdb'
@@ -55,7 +57,8 @@ process pick_best_model {
     cpus 1
     memory '1GB'
     time '30m'
-    publishDir params.out_dir, pattern: 'best_model.pdb', mode: 'link'
+    publishDir params.out_dir, pattern: 'best_model.pdb', mode: 'rellink'
+    stageInMode 'rellink'
 
     input:
         path 'models/*.pdb'
